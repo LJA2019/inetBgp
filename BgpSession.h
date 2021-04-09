@@ -36,7 +36,7 @@ private:
   BgpRouter& bgpRouter;
   
   // add by lja
-  unsigned short peerAS;
+  unsigned short peerAS = 0;
 
   // Timers
   simtime_t _StartEventTime;
@@ -71,6 +71,7 @@ private:
   friend struct fsm::Established;
 
   public:
+
     BgpSession(BgpRouter& bgpRouter);
     virtual ~BgpSession();
 
@@ -79,9 +80,11 @@ private:
     void restartsKeepAliveTimer();
     void restartsConnectRetryTimer(bool start = true);
 
+
+
     void sendOpenMessage();
     void sendUpdateMessage(std::vector<BgpUpdatePathAttributes *>& content, BgpUpdateNlri &NLRI);
-    void sendNotificationMessage();
+    void sendNotificationMessage(unsigned short AS);
     void sendKeepAliveMessage();
 
     void listenConnectionFromPeer() { bgpRouter.listenConnectionFromPeer(_info.sessionID); }
@@ -126,7 +129,7 @@ private:
     Macho::Machine<fsm::TopState>& getFSM() const { return *_fsm; }
     void updateSendProcess(BgpRoutingTableEntry *entry) const { return bgpRouter.updateSendProcess(NEW_SESSION_ESTABLISHED, _info.sessionID, entry); }
 	// add by xxl
-    void notificationSendProcess(BgpRoutingTableEntry *entry) const { return bgpRouter.notificationSendProcess(NOTIFMSG_TYPE, _info.sessionID, entry); }
+    void notificationSendProcess(unsigned short AS) const { return bgpRouter.notificationSendProcess(NOTIFMSG_TYPE, _info.sessionID, AS); }
     bool isRouteExcluded(const Ipv4Route &rtEntry) const { return bgpRouter.isRouteExcluded(rtEntry); }
     BgpRouter &getBgpRouter(){ return bgpRouter;} // get the router of a session add by xxl     // add by hfut   return the reference
 };

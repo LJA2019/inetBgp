@@ -126,6 +126,9 @@ TOPSTATE(TopState) {
     // notification message event add by xxl
     virtual void NotificationMsgEvent() {}
 
+    virtual void ManualStop() {  }
+
+
   private:
     void init() override;
 };
@@ -226,6 +229,7 @@ SUBSTATE(Established, TopState) {
     void KeepAliveMsgEvent() override;
     void UpdateMsgEvent() override;
 	void NotificationMsgEvent() override;    // add by lja
+
 
   private:
     void entry() override;

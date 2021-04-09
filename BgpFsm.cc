@@ -439,7 +439,8 @@ void Established::ConnectRetryTimer_Expires()
     
 	// The ESTABLISHED state can't reset the connection after the ConnectTryTimer expires
 	// add by lja
-	/*
+
+    /*
 	//- releases all BGP resources,
     //- drops the TCP connection,
     session._info.socket->abort();
@@ -447,7 +448,7 @@ void Established::ConnectRetryTimer_Expires()
     ++session._connectRetryCounter;
     //- changes its state to Idle.
     setState<Idle>();
-	*/
+    */
 }
 
 void Established::HoldTimer_Expires()
@@ -455,12 +456,20 @@ void Established::HoldTimer_Expires()
     EV_TRACE << "Processing Established::HoldTimer_Expires" << std::endl;
     BgpSession& session = TopState::box().getModule();
     //If the HoldTimer_Expires event occurs (Event 10), the local system:
+
 	
     //- send notification messages to peers add by lja
+    /*
     for (auto & elem : session.getBGPRoutingTable()){
         session.notificationSendProcess(elem);
     }	
-	
+    */
+    session.notificationSendProcess(0);
+
+//    for (auto & elem : session.getBgpRouter().get_BGPSessions()) {
+//
+//    }
+
     //- sets the ConnectRetryTimer to zero,
     session.restartsConnectRetryTimer(false);
     //- releases all BGP resources,
@@ -470,6 +479,8 @@ void Established::HoldTimer_Expires()
     ++session._connectRetryCounter;
     //- changes its state to Idle.
     setState<Idle>();
+
+
 }
 
 void Established::KeepaliveTimer_Expires()
@@ -505,7 +516,9 @@ void Established::KeepAliveMsgEvent()
     //If the local system receives a KEEPALIVE message (Event 26), the local system:
     //- restarts its HoldTimer, if the negotiated HoldTime value is non-zero, and
     session.restartsHoldTimer();
+
     //- remains in the Established state.
+    //session.restartsConnectRetryTimer(false);
 }
 
 void Established::UpdateMsgEvent()
@@ -518,6 +531,7 @@ void Established::UpdateMsgEvent()
     //- restarts its HoldTimer, if the negotiated HoldTime value is non-zero, and
     session.restartsHoldTimer();
     //- remains in the Established state.
+    //session.restartsConnectRetryTimer(false);
 }
 
 // add by lja
@@ -525,18 +539,40 @@ void Established::NotificationMsgEvent()
 {
     EV_TRACE << "Processing Established::NotificationMsgEvent" << std::endl;
     BgpSession& session = TopState::box().getModule();
+
     session._notificationMsgRcv++;
     session.restartsConnectRetryTimer(false);
 	// Delete routing table entries with the same AS as the Notification message
 	BgpRouter &bgprouter = session.getBgpRouter();		// must use reference
-	bgprouter.doDeleteBGPRoutingEntry(session.getpeerAS());
-	
+
+
+	bool flag = bgprouter.doDeleteBGPRoutingEntry(session.getpeerAS());
+
+	// if have change, broadcast the notification
+	if (flag)
+	    session.notificationSendProcess(session.getpeerAS());
+
 	// Displays the number of routing table entries
     int n = 0;
     for (auto & elem : session.getBGPRoutingTable()) {
         ++n;
     }
 	EV_INFO << "num of BGPRoutingTableEntry is " << n << "\n";
+
+	/*
+    //- sets the ConnectRetryTimer to zero,
+    //session.restartsConnectRetryTimer(false);
+    //- releases all BGP resources,
+    //- drops the TCP connection,
+    session._info.socket->abort();
+    //- increments the ConnectRetryCounter by 1,
+    ++session._connectRetryCounter;
+    //- changes its state to Idle.
+    setState<Idle>();
+
+    session.getFSM()->ManualStart();
+    */
+
 
 }
 

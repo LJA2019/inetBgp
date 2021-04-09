@@ -805,7 +805,7 @@ void BgpRouter::updateSendProcess(const unsigned char type, SessionId sessionInd
 }
 
 // add by xxl
-void BgpRouter::notificationSendProcess(const unsigned char notifMsgType, SessionId sessionIndex, BgpRoutingTableEntry *entry){
+void BgpRouter::notificationSendProcess(const unsigned char notifMsgType, SessionId sessionIndex, unsigned short AS){
     //TODO
 //    // copy from updateSendProcess and else
     for (auto & elem : _BGPSessions)
@@ -815,8 +815,8 @@ void BgpRouter::notificationSendProcess(const unsigned char notifMsgType, Sessio
             continue;
         }
         // if the next hop is not reachable
-        if(!isReachable(entry->getGateway()))
-            continue;
+        //if(!isReachable(entry->getGateway()))
+            //continue;
         // if the session is the same to the sending session
         if((elem).first == sessionIndex){
             continue;
@@ -826,7 +826,7 @@ void BgpRouter::notificationSendProcess(const unsigned char notifMsgType, Sessio
         if (sType == EGP || notifMsgType == NOTIFMSG_TYPE)
         {
 			EV_INFO << "send NotificationMessage to " << elem.second->getBgpRouter().getAsId() << "\n";
-			(elem).second->sendNotificationMessage();
+			(elem).second->sendNotificationMessage(AS);
         }
     }
 
@@ -858,21 +858,47 @@ bool BgpRouter::deleteBGPRoutingEntry(BgpRoutingTableEntry *entry)
 bool BgpRouter::doDeleteBGPRoutingEntry(unsigned short peerAS){
 
         bool isDelete = false, flag;
+//        while (1) {
+//            flag = false;
+//            auto it = bgpRoutingTable.begin();
+//            for ( ; it != bgpRoutingTable.end(); it++)
+//            {
+//                std::vector<AsId> ASList{peerAS};
+//                if (isInASList(ASList, *it)) {
+//                    rt->deleteRoute(*it);
+//                    bgpRoutingTable.erase(it);
+//                    flag = true;
+//                    isDelete = true;
+//                }
+//            }
+//            if (!flag)
+//               break;
+//        }
+        auto it = bgpRoutingTable.begin();
         while (1) {
+            if (it == bgpRoutingTable.end())
+                break;
             flag = false;
-            auto it = bgpRoutingTable.begin();
-            for ( ; it != bgpRoutingTable.end(); it++)
-            {
-                std::vector<AsId> ASList{peerAS};
-                if (isInASList(ASList, *it)) {
-                    rt->deleteRoute(*it);
-                    bgpRoutingTable.erase(it);
-                    flag = true;
-                    isDelete = true;
+            for (auto elem : bgpRoutingTable) {
+                if (((*it)->getDestination().getInt() & (*it)->getNetmask().getInt()) ==
+                (elem->getDestination().getInt() & elem->getNetmask().getInt())) {
+                    for (unsigned int i = 0; i < elem->getASCount(); i++) {
+                        if (elem->getASCount() >= 65535)
+                            break;
+                        if (peerAS == elem->getAS(i)) {
+                            flag = true;
+                            isDelete = true;
+                            rt->deleteRoute(elem);
+                            bgpRoutingTable.erase(it);
+                            break;
+                        }
+                    }
                 }
             }
             if (!flag)
-               break;
+                ++it;
+            else
+                it = bgpRoutingTable.begin();
         }
         EV_INFO << "my AS is " <<  getAsId() << "\n";
         if (isDelete) {
@@ -927,6 +953,8 @@ unsigned long BgpRouter::isInTable(std::vector<BgpRoutingTableEntry *> rtTable, 
 /*return true if the AS is found, false else*/
 bool BgpRouter::isInASList(std::vector<AsId> ASList, BgpRoutingTableEntry *entry)
 {
+    if (entry->getASCount() > 65535)
+        return false;
     for (auto & elem : ASList) {
         for (unsigned int i = 0; i < entry->getASCount(); i++) {
             if ((elem) == entry->getAS(i)) {

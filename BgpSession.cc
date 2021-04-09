@@ -190,7 +190,7 @@ void BgpSession::sendNotificationMessage()
 
 
 // add by lja
-void BgpSession::sendNotificationMessage()
+void BgpSession::sendNotificationMessage(unsigned short AS)
 {
     // TODO
     const auto &notificationMsg = makeShared<BgpNotificationMessage>();
@@ -203,8 +203,10 @@ void BgpSession::sendNotificationMessage()
     //int AS = bgpRouter.getAsId();
    // to_string(AS);
 
-
-    notificationMsg->setMyAS(bgpRouter.getAsId());   // Set the peerAS for the session
+    if (AS == 0)
+        notificationMsg->setMyAS(bgpRouter.getAsId());   // Set the peerAS for the session
+    else
+        notificationMsg->setMyAS(AS);
     Packet *pk = new Packet("BgpNotification");
     pk->insertAtFront(notificationMsg);
 

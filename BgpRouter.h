@@ -110,7 +110,10 @@ private:
     void printKeepAliveMessage(const BgpKeepAliveMessage& msg);
 	
 	// public bgp routing table delete method add by lja
-	bool doDeleteBGPRoutingEntry(unsigned short peerAS);
+	bool doDeleteBGPRoutingEntry(unsigned short AS);
+
+    // add by lja
+    std::map<SessionId, BgpSession *> &get_BGPSessions() { return _BGPSessions; }
 
   protected:
     /** @name TcpSocket::ICallback callback methods */
@@ -130,6 +133,9 @@ private:
     // functions used by the BgpSession class
     void getScheduleAt(simtime_t t, cMessage *msg) { bgpModule->scheduleAt(t, msg); }
     void getCancelAndDelete(cMessage *msg) { return bgpModule->cancelAndDelete(msg); }
+
+
+
     cMessage *getCancelEvent(cMessage *msg) { return bgpModule->cancelEvent(msg); }
     IIpv4RoutingTable *getIPRoutingTable() { return rt; }
     std::vector<BgpRoutingTableEntry *> getBGPRoutingTable() { return bgpRoutingTable; }
@@ -149,7 +155,7 @@ private:
     /**
      * \brief RFC 4271 Notification Message Process / Sent NOTIFICATION messages to its peers, add by xxl
      */
-    void notificationSendProcess(const unsigned char notifMsgType, SessionId sessionIndex, BgpRoutingTableEntry *entry);
+    void notificationSendProcess(const unsigned char notifMsgType, SessionId sessionIndex, unsigned short AS);
 	/**
      * \brief find the next SessionId compared to his type and start this session if boolean is true
      */
