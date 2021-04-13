@@ -31,7 +31,6 @@ class TcpSocket;
 namespace bgp {
 
 const unsigned char TCP_PORT = 179;
-
 const unsigned char START_EVENT_KIND = 81;
 const unsigned char CONNECT_RETRY_KIND = 82;
 const unsigned char HOLD_TIME_KIND = 83;
@@ -46,7 +45,7 @@ const unsigned char NEW_ROUTE_ADDED = 91;
 const unsigned char NEW_SESSION_ESTABLISHED = 92;
 const unsigned char ASLOOP_NO_DETECTED = 93;
 const unsigned char ASLOOP_DETECTED = 94;
-const unsigned char NOTIFMSG_TYPE = 95;     // add by xxl
+const unsigned char NOTIFMSG_TYPE = 95;     // add by xxl, notification message
 
 static const int BGP_TCP_CONNECT_VALID = 71;
 static const int BGP_TCP_CONNECT_CONFIRM = 72;
@@ -58,6 +57,7 @@ static const int BGP_RETRY_TIME = 120;
 static const int BGP_HOLD_TIME = 180;
 static const int BGP_KEEP_ALIVE = 60;    // 1/3 of BGP_HOLD_TIME
 static const int NB_SEC_START_EGP_SESSION = 1;
+static const int IDLE_TIME = 10;
 
 typedef Ipv4Address RouterId;
 typedef Ipv4Address NextHop;

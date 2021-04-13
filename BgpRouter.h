@@ -109,11 +109,20 @@ private:
   //  void printNotificationMessage(const BgpNotificationMessage& msg);
     void printKeepAliveMessage(const BgpKeepAliveMessage& msg);
 	
-	// public bgp routing table delete method add by lja
-	bool doDeleteBGPRoutingEntry(unsigned short AS);
 
     // add by lja
+	/*
     std::map<SessionId, BgpSession *> &get_BGPSessions() { return _BGPSessions; }
+    void deleteSession(unsigned long sessionID) {
+        for (auto it = _BGPSessions.begin(); it !=  _BGPSessions.end(); ++it) {
+            if (it->first == sessionID) {
+                delete it->second;
+                _BGPSessions.erase(it);
+                break;
+            }
+        }
+    }
+    */
 
   protected:
     /** @name TcpSocket::ICallback callback methods */
@@ -135,7 +144,6 @@ private:
     void getCancelAndDelete(cMessage *msg) { return bgpModule->cancelAndDelete(msg); }
 
 
-
     cMessage *getCancelEvent(cMessage *msg) { return bgpModule->cancelEvent(msg); }
     IIpv4RoutingTable *getIPRoutingTable() { return rt; }
     std::vector<BgpRoutingTableEntry *> getBGPRoutingTable() { return bgpRoutingTable; }
@@ -155,7 +163,7 @@ private:
     /**
      * \brief RFC 4271 Notification Message Process / Sent NOTIFICATION messages to its peers, add by xxl
      */
-    void notificationSendProcess(const unsigned char notifMsgType, SessionId sessionIndex, unsigned short AS);
+    void notificationSendProcess(const unsigned char notifMsgType, SessionId sessionIndex);
 	/**
      * \brief find the next SessionId compared to his type and start this session if boolean is true
      */
@@ -169,6 +177,9 @@ private:
     void processMessage(const BgpUpdateMessage& msg);
     // add by lja
     void processMessage(const BgpNotificationMessage& msg);
+
+    // public bgp routing table delete method add by lja
+    bool doDeleteBGPRoutingEntry(unsigned short AS);
 
     bool deleteBGPRoutingEntry(BgpRoutingTableEntry *entry);
     /**

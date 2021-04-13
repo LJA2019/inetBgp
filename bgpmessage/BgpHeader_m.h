@@ -304,6 +304,7 @@ class INET_API BgpOptionalParameterBase
  *     // The AS number of the router that emitted the Notification message
  *     // add by lja
  *     uint16_t myAS;
+ * 
  *     //todo
  * }
  * </pre>
@@ -338,7 +339,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const BgpNotificationMessag
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpNotificationMessage& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:109</tt> by nedtool.
+ * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:110</tt> by nedtool.
  * <pre>
  * class BgpOptionalParameterRaw extends BgpOptionalParameterBase
  * {
@@ -378,7 +379,7 @@ class INET_API BgpOptionalParameterRaw : public ::inet::bgp::BgpOptionalParamete
 };
 
 /**
- * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:117</tt> by nedtool.
+ * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:118</tt> by nedtool.
  * <pre>
  * //
  * // Represents a BGPv4 OPEN message.
@@ -452,7 +453,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const BgpOpenMessage& obj) 
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpOpenMessage& obj) {obj.parsimUnpack(b);}
 
 /**
- * Enum generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:131</tt> by nedtool.
+ * Enum generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:132</tt> by nedtool.
  * <pre>
  * enum BgpUpdateAttributeTypeCode
  * {
@@ -477,7 +478,7 @@ enum BgpUpdateAttributeTypeCode {
 };
 
 /**
- * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:142</tt> by nedtool.
+ * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:143</tt> by nedtool.
  * <pre>
  * class BgpUpdatePathAttributes extends cObject
  * {
@@ -539,7 +540,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const BgpUpdatePathAttribut
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpUpdatePathAttributes& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:154</tt> by nedtool.
+ * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:155</tt> by nedtool.
  * <pre>
  * // ORIGIN (RFC4271 Section 4.3, Type code 1):
  * class BgpUpdatePathAttributesOrigin extends BgpUpdatePathAttributes
@@ -582,7 +583,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const BgpUpdatePathAttribut
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpUpdatePathAttributesOrigin& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:164</tt> by nedtool.
+ * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:165</tt> by nedtool.
  * <pre>
  * // AS_PATH (RFC4271 Section 4.3, Type code 2):
  * class BgpUpdatePathAttributesAsPath extends BgpUpdatePathAttributes
@@ -632,7 +633,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const BgpUpdatePathAttribut
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpUpdatePathAttributesAsPath& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:174</tt> by nedtool.
+ * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:175</tt> by nedtool.
  * <pre>
  * //NEXT_HOP (RFC4271 Section 4.3, Type code 3):
  * class BgpUpdatePathAttributesNextHop extends BgpUpdatePathAttributes
@@ -676,7 +677,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const BgpUpdatePathAttribut
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpUpdatePathAttributesNextHop& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:184</tt> by nedtool.
+ * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:185</tt> by nedtool.
  * <pre>
  * //MULTI_EXIT_DISC (RFC4271 Section 4.3, Type code 4):
  * class BgpUpdatePathAttributesMultiExitDisc extends BgpUpdatePathAttributes
@@ -719,7 +720,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const BgpUpdatePathAttribut
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpUpdatePathAttributesMultiExitDisc& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:194</tt> by nedtool.
+ * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:195</tt> by nedtool.
  * <pre>
  * //LOCAL_PREF (RFC4271 Section 4.3, Type code 5):
  * class BgpUpdatePathAttributesLocalPref extends BgpUpdatePathAttributes
@@ -762,7 +763,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const BgpUpdatePathAttribut
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpUpdatePathAttributesLocalPref& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:204</tt> by nedtool.
+ * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:205</tt> by nedtool.
  * <pre>
  * //ATOMIC_AGGREGATE (RFC4271 Section 4.3, Type code 6):
  * class BgpUpdatePathAttributesAtomicAggregate extends BgpUpdatePathAttributes
@@ -801,7 +802,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const BgpUpdatePathAttribut
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpUpdatePathAttributesAtomicAggregate& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:212</tt> by nedtool.
+ * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:213</tt> by nedtool.
  * <pre>
  * class BgpUpdatePathAttributesAggregator extends BgpUpdatePathAttributes
  * {
@@ -848,7 +849,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const BgpUpdatePathAttribut
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpUpdatePathAttributesAggregator& obj) {obj.parsimUnpack(b);}
 
 /**
- * Struct generated from inet/routing/bgpv4/bgpmessage/BgpHeader.msg:222 by nedtool.
+ * Struct generated from inet/routing/bgpv4/bgpmessage/BgpHeader.msg:223 by nedtool.
  */
 struct INET_API BgpUpdateWithdrawnRoutes
 {
@@ -865,7 +866,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const BgpUpdateWithdrawnRou
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpUpdateWithdrawnRoutes& obj) { __doUnpacking(b, obj); }
 
 /**
- * Struct generated from inet/routing/bgpv4/bgpmessage/BgpHeader.msg:228 by nedtool.
+ * Struct generated from inet/routing/bgpv4/bgpmessage/BgpHeader.msg:229 by nedtool.
  */
 struct INET_API BgpUpdateNlri
 {
@@ -882,7 +883,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const BgpUpdateNlri& obj) {
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpUpdateNlri& obj) { __doUnpacking(b, obj); }
 
 /**
- * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:240</tt> by nedtool.
+ * Class generated from <tt>inet/routing/bgpv4/bgpmessage/BgpHeader.msg:241</tt> by nedtool.
  * <pre>
  * //
  * // Represents a BGPv4 UPDATE message.
@@ -891,6 +892,10 @@ inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpUpdateNlri& obj) { __d
  * //
  * class BgpUpdateMessage extends BgpHeader
  * {
+ *     // add by lja
+ *     // The AS number of the route item needs to be removed
+ *     uint16_t AS;
+ * 
  *     type = BGP_UPDATE;
  *     chunkLength = BGP_HEADER_OCTETS + BGP_EMPTY_UPDATE_OCTETS;
  *     totalLength = B(BGP_HEADER_OCTETS + BGP_EMPTY_UPDATE_OCTETS).get();
@@ -921,6 +926,7 @@ inline void doParsimUnpacking(omnetpp::cCommBuffer *b, BgpUpdateNlri& obj) { __d
 class INET_API BgpUpdateMessage : public ::inet::bgp::BgpHeader
 {
   protected:
+    uint16_t AS = 0;
     uint16_t withDrawnRoutesLength = 0;
     BgpUpdateWithdrawnRoutes *withdrawnRoutes = nullptr;
     size_t withdrawnRoutes_arraysize = 0;
@@ -947,6 +953,8 @@ class INET_API BgpUpdateMessage : public ::inet::bgp::BgpHeader
     virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
 
     // field getter/setter methods
+    virtual uint16_t getAS() const;
+    virtual void setAS(uint16_t AS);
     virtual uint16_t getWithDrawnRoutesLength() const;
     virtual void setWithDrawnRoutesLength(uint16_t withDrawnRoutesLength);
     virtual void setWithdrawnRoutesArraySize(size_t size);

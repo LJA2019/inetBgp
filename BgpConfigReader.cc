@@ -101,6 +101,9 @@ void BgpConfigReader::loadTimerConfig(cXMLElementList& timerConfig, simtime_t *d
         else if (nodeName == "startDelay") {
             delayTab[3] = (double)atoi((elem)->getNodeValue());
         }
+        else if (nodeName == "setIdle"){
+            delayTab[4] = (double)atoi((elem)->getNodeValue());
+        }
     }
 }
 

@@ -126,7 +126,11 @@ TOPSTATE(TopState) {
     // notification message event add by xxl
     virtual void NotificationMsgEvent() {}
 
-    virtual void ManualStop() {  }
+    // add by lja
+    //virtual void ManualStop() {  }
+
+    // add by lja
+    virtual void SendNotificationMsgEvent() {}
 
 
   private:
@@ -155,7 +159,9 @@ SUBSTATE(Connect, TopState) {
     void TcpConnectionFails() override;
     void KeepAliveMsgEvent() override;
     void UpdateMsgEvent() override;
-	void NotificationMsgEvent() {}    // add by lja
+
+
+
 
   private:
     void entry() override { EV_STATICCONTEXT; EV_DEBUG << "Connect::entry" << std::endl; }
@@ -174,7 +180,9 @@ SUBSTATE(Active, TopState) {
     void OpenMsgEvent() override;
     void KeepAliveMsgEvent() override;
     void UpdateMsgEvent() override;
-	void NotificationMsgEvent() {}    // add by lja
+
+
+
 
   private:
     void entry() override { EV_STATICCONTEXT; EV_DEBUG << "Active::entry" << std::endl; }
@@ -192,7 +200,8 @@ SUBSTATE(OpenSent, TopState) {
     void OpenMsgEvent() override;
     void KeepAliveMsgEvent() override;
     void UpdateMsgEvent() override;
-	void NotificationMsgEvent() {}    // add by lja
+
+
 
   private:
     void entry() override { EV_STATICCONTEXT; EV_DEBUG << "OpenSent::entry" << std::endl; }
@@ -210,7 +219,8 @@ SUBSTATE(OpenConfirm, TopState) {
     void OpenMsgEvent() override;
     void KeepAliveMsgEvent() override;
     void UpdateMsgEvent() override;
-	void NotificationMsgEvent() {}    // add by lja
+
+
 
   private:
     void entry() override { EV_STATICCONTEXT; EV_DEBUG << "OpenConfirm::entry" << std::endl; }
@@ -229,6 +239,10 @@ SUBSTATE(Established, TopState) {
     void KeepAliveMsgEvent() override;
     void UpdateMsgEvent() override;
 	void NotificationMsgEvent() override;    // add by lja
+	void SendNotificationMsgEvent() override;  // add by lja
+
+    // add by lja  2021.04.09
+    //void ManualStop() { session.restartsConnectRetryTimer(false); session._info.socket->abort(); ++session._connectRetryCounter; setState<Idle>(); }
 
 
   private:

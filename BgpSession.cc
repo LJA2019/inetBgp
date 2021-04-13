@@ -58,6 +58,7 @@ void BgpSession::setTimers(simtime_t *delayTab)
     _connectRetryTime = delayTab[0];
     _holdTime = delayTab[1];
     _keepAliveTime = delayTab[2];
+    _idletime = delayTab[4];
     if (_info.sessionType == IGP) {
         _StartEventTime = delayTab[3];
         // if this BGP router does not establish any EGP connection, then start this IGP session
@@ -80,6 +81,15 @@ void BgpSession::setTimers(simtime_t *delayTab)
     _ptrConnectRetryTimer->setContextPointer(this);
     _ptrHoldTimer->setContextPointer(this);
     _ptrKeepAliveTimer->setContextPointer(this);
+}
+
+// add by lja
+// Used for restarting
+void BgpSession::restartConnection() {
+    _ptrStartEvent = new cMessage("BGP Start", START_EVENT_KIND);
+    //bgpRouter.getScheduleAt(simTime() + _idletime+1, _ptrStartEvent);
+    bgpRouter.getScheduleAt(simTime()+1, _ptrStartEvent);
+    _ptrStartEvent->setContextPointer(this);
 }
 
 void BgpSession::startConnection()
@@ -137,9 +147,22 @@ void BgpSession::sendOpenMessage()
     _openMsgSent++;
 }
 
-void BgpSession::sendUpdateMessage(std::vector<BgpUpdatePathAttributes*> &content, BgpUpdateNlri &NLRI)
+void BgpSession::sendUpdateMessage(std::vector<BgpUpdatePathAttributes*> &content, BgpUpdateNlri &NLRI, uint16_t AS)
 {
     const auto& updateMsg = makeShared<BgpUpdateMessage>();
+
+    // add by lja
+    if(!isEstablished())
+        return;
+    if(AS!=0){
+        updateMsg->setAS(AS);
+        Packet *pk = new Packet("BgpUpdate");
+        pk->insertAtFront(updateMsg);
+
+        _info.socket->send(pk);
+        _updateMsgSent++;
+        return;
+    }
 
     updateMsg->setWithDrawnRoutesLength(0);
 
@@ -156,6 +179,8 @@ void BgpSession::sendUpdateMessage(std::vector<BgpUpdatePathAttributes*> &conten
     updateMsg->setNLRI(0, NLRI);
     updateMsg->addChunkLength(B(1 + (NLRI.length +7)/8));
     updateMsg->setTotalLength(B(updateMsg->getChunkLength()).get());
+
+
 
     EV_INFO << "Sending BGP Update message to " << _info.peerAddr.str(false) <<
             " on interface " << _info.linkIntf->getInterfaceName() <<
@@ -190,7 +215,8 @@ void BgpSession::sendNotificationMessage()
 
 
 // add by lja
-void BgpSession::sendNotificationMessage(unsigned short AS)
+// Send notification
+void BgpSession::sendNotificationMessage(uint16_t AS)
 {
     // TODO
     const auto &notificationMsg = makeShared<BgpNotificationMessage>();
@@ -199,19 +225,21 @@ void BgpSession::sendNotificationMessage(unsigned short AS)
                    << _info.peerAddr.str(false) << " on interface "
                    << _info.linkIntf->getInterfaceName() << "["
                    << _info.linkIntf->getInterfaceId() << "] with contents:\n";
-//    bgpRouter.printNotificationMessage(*notificationMsg);
-    //int AS = bgpRouter.getAsId();
-   // to_string(AS);
 
-    if (AS == 0)
-        notificationMsg->setMyAS(bgpRouter.getAsId());   // Set the peerAS for the session
-    else
-        notificationMsg->setMyAS(AS);
+
+    notificationMsg->setMyAS(AS);
+
+
+
     Packet *pk = new Packet("BgpNotification");
     pk->insertAtFront(notificationMsg);
 
     _info.socket->send(pk);
     _notificationMsgSent++;
+
+    // After send notification, set idle, then restart;
+    getFSM()->SendNotificationMsgEvent();
+    restartConnection();
 }
 
 void BgpSession::sendKeepAliveMessage()

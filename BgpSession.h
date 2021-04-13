@@ -35,8 +35,6 @@ private:
   SessionInfo _info;
   BgpRouter& bgpRouter;
   
-  // add by lja
-  unsigned short peerAS = 0;
 
   // Timers
   simtime_t _StartEventTime;
@@ -48,6 +46,9 @@ private:
   cMessage *_ptrHoldTimer = nullptr;
   simtime_t _keepAliveTime = BGP_KEEP_ALIVE;
   cMessage *_ptrKeepAliveTimer = nullptr;
+
+  simtime_t _idletime = IDLE_TIME; // add by lja
+  cMessage *_ptrSetIdleimer = nullptr; // add by lja
 
   // Statistics
   unsigned int _openMsgSent = 0;
@@ -72,6 +73,9 @@ private:
 
   public:
 
+    // add by lja
+    uint16_t getAS() { return _info.ASValue; }
+
     BgpSession(BgpRouter& bgpRouter);
     virtual ~BgpSession();
 
@@ -80,10 +84,11 @@ private:
     void restartsKeepAliveTimer();
     void restartsConnectRetryTimer(bool start = true);
 
-
+    // add by lja
+    void restartConnection();
 
     void sendOpenMessage();
-    void sendUpdateMessage(std::vector<BgpUpdatePathAttributes *>& content, BgpUpdateNlri &NLRI);
+    void sendUpdateMessage(std::vector<BgpUpdatePathAttributes *>& content, BgpUpdateNlri &NLRI, uint16_t AS);
     void sendNotificationMessage(unsigned short AS);
     void sendKeepAliveMessage();
 
@@ -109,10 +114,6 @@ private:
     bool isEstablished() const { return _info.sessionEstablished; }
     SessionId getSessionID() const { return _info.sessionID; }
 	
-	// add by lja
-    unsigned short getpeerAS() { return peerAS; }
-	// add by lja
-    void setpeerAS(unsigned short AS) { peerAS = AS; }	
 	
     BgpSessionType getType() const { return _info.sessionType; }
     static const std::string getTypeString(BgpSessionType sessionType);
@@ -129,9 +130,11 @@ private:
     Macho::Machine<fsm::TopState>& getFSM() const { return *_fsm; }
     void updateSendProcess(BgpRoutingTableEntry *entry) const { return bgpRouter.updateSendProcess(NEW_SESSION_ESTABLISHED, _info.sessionID, entry); }
 	// add by xxl
-    void notificationSendProcess(unsigned short AS) const { return bgpRouter.notificationSendProcess(NOTIFMSG_TYPE, _info.sessionID, AS); }
+    void notificationSendProcess() const { return bgpRouter.notificationSendProcess(NOTIFMSG_TYPE, _info.sessionID);
+    }
     bool isRouteExcluded(const Ipv4Route &rtEntry) const { return bgpRouter.isRouteExcluded(rtEntry); }
-    BgpRouter &getBgpRouter(){ return bgpRouter;} // get the router of a session add by xxl     // add by hfut   return the reference
+    BgpRouter &getBgpRouter(){ return bgpRouter;} // get the router of a session add by xxl     // add by lja, must return the reference
+    bool DeleteBGPRoutingEntry(unsigned short AS) { return bgpRouter.doDeleteBGPRoutingEntry(AS); }
 };
 
 std::ostream& operator<<(std::ostream& out, const BgpSession& entry);

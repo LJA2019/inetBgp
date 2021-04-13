@@ -497,6 +497,33 @@ void BgpRouter::processMessage(const BgpUpdateMessage& msg)
     printUpdateMessage(msg);
     session->getFSM()->UpdateMsgEvent();
 
+
+    // add by lja
+    // When AS is not 0, UPDATE is a routing table event that deletes the routing table entry
+    uint16_t AS = msg.getAS();
+    if (AS) {
+        bool flag = doDeleteBGPRoutingEntry(AS);
+        if (flag) {
+            for(auto &elem : _BGPSessions) {
+                if((myAsId==AS)||
+                        (elem.second->getType() != EGP)||
+                        !elem.second->isEstablished())
+                {
+                    continue;
+                } else {
+                    EV_INFO << "DELETE AS " <<AS<<"\n";
+                    EV_INFO << "myAS " <<myAsId<<"\n";
+                    //EV_INFO << "aim session's AS " <<elem.second->getAsValue()<<"\n";
+                    BgpUpdateNlri NLRI;
+                    std::vector<BgpUpdatePathAttributes*> content;
+                    (elem).second->sendUpdateMessage(content,NLRI,AS);
+                }
+            }
+        }
+        return ;
+    }
+
+
     BgpRoutingTableEntry *entry = new BgpRoutingTableEntry();
     entry->setLocalPreference(bgpModule->par("localPreference").intValue());
     entry->setDestination(msg.getNLRI(0).prefix);
@@ -530,7 +557,8 @@ void BgpRouter::processMessage(const BgpUpdateMessage& msg)
         delete entry;
 }
 
-// notification message process add by xxl
+// notification message process add by lja
+// Call NotificationMsgEvent() to handle the event, and then restart
 void BgpRouter::processMessage(const BgpNotificationMessage& msg)
 {
     BgpSession *session = _BGPSessions[_currSessionId];
@@ -541,9 +569,26 @@ void BgpRouter::processMessage(const BgpNotificationMessage& msg)
 	
 	// set the AS number of the Notification message
 	// add by lja
-    session->setpeerAS(msg.getMyAS());
-    EV_INFO << "peer AS" << msg.getMyAS() << "\n";
+    uint16_t AS = msg.getMyAS();
+    bool flag = doDeleteBGPRoutingEntry(AS);
+    if (flag) {
+        for(auto &elem : _BGPSessions) {
+            if((myAsId == AS)||
+                    (elem.second->getType() != EGP)||
+                    !elem.second->isEstablished())
+            {
+                continue;
+            } else {
+                EV_INFO << "DELETE AS " << AS <<"\n";
+                EV_INFO << "myAS " << myAsId <<"\n";
+                BgpUpdateNlri NLRI;
+                std::vector<BgpUpdatePathAttributes*> content;
+                (elem).second->sendUpdateMessage(content,NLRI,AS);
+            }
+        }
+    }
     session->getFSM()->NotificationMsgEvent();
+    session->restartConnection();
 }
 
 unsigned char BgpRouter::asLoopDetection(BgpRoutingTableEntry *entry, AsId myAS)
@@ -799,15 +844,36 @@ void BgpRouter::updateSendProcess(const unsigned char type, SessionId sessionInd
             NLRI.prefix = entry->getDestination().doAnd(netMask);
             NLRI.length = (unsigned char)netMask.getNetmaskLength();
 
-            (elem).second->sendUpdateMessage(content, NLRI);
+            (elem).second->sendUpdateMessage(content, NLRI, 0);
         }
     }
 }
 
 // add by xxl
-void BgpRouter::notificationSendProcess(const unsigned char notifMsgType, SessionId sessionIndex, unsigned short AS){
+void BgpRouter::notificationSendProcess(const unsigned char notifMsgType, SessionId sessionIndex){
     //TODO
-//    // copy from updateSendProcess and else
+
+    // add by lja
+    //  Delete all route table entries of this router
+    auto it = bgpRoutingTable.begin();
+    while(1)
+    {
+        if(it==bgpRoutingTable.end())
+            break;
+        for(auto elem : getBGPRoutingTable()){
+            if(((*it)->getDestination().getInt() & (*it)->getNetmask().getInt()) ==
+                    (elem->getDestination().getInt() & elem->getNetmask().getInt())){
+                EV_INFO <<((*it)->getDestination().getInt()& (*it)->getNetmask().getInt())<<"\n";
+                EV_INFO <<(elem->getDestination().getInt() & elem->getNetmask().getInt())<<"\n";
+                bgpRoutingTable.erase(it);
+                rt->deleteRoute(elem);
+
+                break;
+            }
+        }
+        it = bgpRoutingTable.begin();
+    }
+
     for (auto & elem : _BGPSessions)
     {
         if (!(elem).second->isEstablished())
@@ -825,8 +891,8 @@ void BgpRouter::notificationSendProcess(const unsigned char notifMsgType, Sessio
         BgpSessionType sType = _BGPSessions[sessionIndex]->getType();
         if (sType == EGP || notifMsgType == NOTIFMSG_TYPE)
         {
-			EV_INFO << "send NotificationMessage to " << elem.second->getBgpRouter().getAsId() << "\n";
-			(elem).second->sendNotificationMessage(AS);
+			//EV_INFO << "send NotificationMessage to " << elem.second->getBgpRouter().getAsId() << "\n";
+			(elem).second->sendNotificationMessage((elem).second->getAS());
         }
     }
 

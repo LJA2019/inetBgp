@@ -21,8 +21,8 @@ import inet.common.Units;
 import inet.common.packet.chunk.Chunk;
 import inet.networklayer.contract.ipv4.Ipv4Address;
 import inet.routing.bgpv4.BgpCommon;
-
-namespace inet::bgp;
+ 
+namespace inet::bgp; 
 
 cplusplus {{
 const B BGP_HEADER_OCTETS = B(19);
@@ -102,6 +102,7 @@ class BgpNotificationMessage extends BgpHeader
 	// The AS number of the router that emitted the Notification message
 	// add by lja
 	uint16_t myAS;    
+
     //todo
 }
 
@@ -238,6 +239,10 @@ struct BgpUpdateNlri
 //
 class BgpUpdateMessage extends BgpHeader
 {
+    // add by lja
+    // The AS number of the route item needs to be removed
+    uint16_t AS;  
+
     type = BGP_UPDATE;
     chunkLength = BGP_HEADER_OCTETS + BGP_EMPTY_UPDATE_OCTETS;
     totalLength = B(BGP_HEADER_OCTETS + BGP_EMPTY_UPDATE_OCTETS).get();

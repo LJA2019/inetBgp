@@ -24,7 +24,7 @@ enum BgpSessionType
 {
     IGP = 0;
     EGP = 1;
-    INCOMPLETE = 2;
+    INCOMPLETE = 2; 
 }
 
 enum BgpPathSegmentType

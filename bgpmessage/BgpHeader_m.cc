@@ -5679,6 +5679,7 @@ BgpUpdateMessage& BgpUpdateMessage::operator=(const BgpUpdateMessage& other)
 
 void BgpUpdateMessage::copy(const BgpUpdateMessage& other)
 {
+    this->AS = other.AS;
     this->withDrawnRoutesLength = other.withDrawnRoutesLength;
     delete [] this->withdrawnRoutes;
     this->withdrawnRoutes = (other.withdrawnRoutes_arraysize==0) ? nullptr : new BgpUpdateWithdrawnRoutes[other.withdrawnRoutes_arraysize];
@@ -5709,6 +5710,7 @@ void BgpUpdateMessage::copy(const BgpUpdateMessage& other)
 void BgpUpdateMessage::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::inet::bgp::BgpHeader::parsimPack(b);
+    doParsimPacking(b,this->AS);
     doParsimPacking(b,this->withDrawnRoutesLength);
     b->pack(withdrawnRoutes_arraysize);
     doParsimArrayPacking(b,this->withdrawnRoutes,withdrawnRoutes_arraysize);
@@ -5722,6 +5724,7 @@ void BgpUpdateMessage::parsimPack(omnetpp::cCommBuffer *b) const
 void BgpUpdateMessage::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::inet::bgp::BgpHeader::parsimUnpack(b);
+    doParsimUnpacking(b,this->AS);
     doParsimUnpacking(b,this->withDrawnRoutesLength);
     delete [] this->withdrawnRoutes;
     b->unpack(withdrawnRoutes_arraysize);
@@ -5748,6 +5751,17 @@ void BgpUpdateMessage::parsimUnpack(omnetpp::cCommBuffer *b)
         this->NLRI = new BgpUpdateNlri[NLRI_arraysize];
         doParsimArrayUnpacking(b,this->NLRI,NLRI_arraysize);
     }
+}
+
+uint16_t BgpUpdateMessage::getAS() const
+{
+    return this->AS;
+}
+
+void BgpUpdateMessage::setAS(uint16_t AS)
+{
+    handleChange();
+    this->AS = AS;
 }
 
 uint16_t BgpUpdateMessage::getWithDrawnRoutesLength() const
@@ -5996,6 +6010,7 @@ class BgpUpdateMessageDescriptor : public omnetpp::cClassDescriptor
   private:
     mutable const char **propertynames;
     enum FieldConstants {
+        FIELD_AS,
         FIELD_withDrawnRoutesLength,
         FIELD_withdrawnRoutes,
         FIELD_totalPathAttributeLength,
@@ -6063,7 +6078,7 @@ const char *BgpUpdateMessageDescriptor::getProperty(const char *propertyname) co
 int BgpUpdateMessageDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 5+basedesc->getFieldCount() : 5;
+    return basedesc ? 6+basedesc->getFieldCount() : 6;
 }
 
 unsigned int BgpUpdateMessageDescriptor::getFieldTypeFlags(int field) const
@@ -6075,13 +6090,14 @@ unsigned int BgpUpdateMessageDescriptor::getFieldTypeFlags(int field) const
         field -= basedesc->getFieldCount();
     }
     static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,    // FIELD_AS
         FD_ISEDITABLE,    // FIELD_withDrawnRoutesLength
         FD_ISARRAY | FD_ISCOMPOUND,    // FIELD_withdrawnRoutes
         FD_ISEDITABLE,    // FIELD_totalPathAttributeLength
         FD_ISARRAY | FD_ISCOMPOUND | FD_ISPOINTER | FD_ISCOBJECT,    // FIELD_pathAttributes
         FD_ISARRAY | FD_ISCOMPOUND,    // FIELD_NLRI
     };
-    return (field >= 0 && field < 5) ? fieldTypeFlags[field] : 0;
+    return (field >= 0 && field < 6) ? fieldTypeFlags[field] : 0;
 }
 
 const char *BgpUpdateMessageDescriptor::getFieldName(int field) const
@@ -6093,24 +6109,26 @@ const char *BgpUpdateMessageDescriptor::getFieldName(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldNames[] = {
+        "AS",
         "withDrawnRoutesLength",
         "withdrawnRoutes",
         "totalPathAttributeLength",
         "pathAttributes",
         "NLRI",
     };
-    return (field >= 0 && field < 5) ? fieldNames[field] : nullptr;
+    return (field >= 0 && field < 6) ? fieldNames[field] : nullptr;
 }
 
 int BgpUpdateMessageDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount() : 0;
-    if (fieldName[0] == 'w' && strcmp(fieldName, "withDrawnRoutesLength") == 0) return base+0;
-    if (fieldName[0] == 'w' && strcmp(fieldName, "withdrawnRoutes") == 0) return base+1;
-    if (fieldName[0] == 't' && strcmp(fieldName, "totalPathAttributeLength") == 0) return base+2;
-    if (fieldName[0] == 'p' && strcmp(fieldName, "pathAttributes") == 0) return base+3;
-    if (fieldName[0] == 'N' && strcmp(fieldName, "NLRI") == 0) return base+4;
+    if (fieldName[0] == 'A' && strcmp(fieldName, "AS") == 0) return base+0;
+    if (fieldName[0] == 'w' && strcmp(fieldName, "withDrawnRoutesLength") == 0) return base+1;
+    if (fieldName[0] == 'w' && strcmp(fieldName, "withdrawnRoutes") == 0) return base+2;
+    if (fieldName[0] == 't' && strcmp(fieldName, "totalPathAttributeLength") == 0) return base+3;
+    if (fieldName[0] == 'p' && strcmp(fieldName, "pathAttributes") == 0) return base+4;
+    if (fieldName[0] == 'N' && strcmp(fieldName, "NLRI") == 0) return base+5;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -6123,13 +6141,14 @@ const char *BgpUpdateMessageDescriptor::getFieldTypeString(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldTypeStrings[] = {
+        "uint16_t",    // FIELD_AS
         "uint16_t",    // FIELD_withDrawnRoutesLength
         "inet::bgp::BgpUpdateWithdrawnRoutes",    // FIELD_withdrawnRoutes
         "uint16_t",    // FIELD_totalPathAttributeLength
         "inet::bgp::BgpUpdatePathAttributes",    // FIELD_pathAttributes
         "inet::bgp::BgpUpdateNlri",    // FIELD_NLRI
     };
-    return (field >= 0 && field < 5) ? fieldTypeStrings[field] : nullptr;
+    return (field >= 0 && field < 6) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **BgpUpdateMessageDescriptor::getFieldPropertyNames(int field) const
@@ -6208,6 +6227,7 @@ std::string BgpUpdateMessageDescriptor::getFieldValueAsString(void *object, int 
     }
     BgpUpdateMessage *pp = (BgpUpdateMessage *)object; (void)pp;
     switch (field) {
+        case FIELD_AS: return ulong2string(pp->getAS());
         case FIELD_withDrawnRoutesLength: return ulong2string(pp->getWithDrawnRoutesLength());
         case FIELD_withdrawnRoutes: {std::stringstream out; out << pp->getWithdrawnRoutes(i); return out.str();}
         case FIELD_totalPathAttributeLength: return ulong2string(pp->getTotalPathAttributeLength());
@@ -6227,6 +6247,7 @@ bool BgpUpdateMessageDescriptor::setFieldValueAsString(void *object, int field, 
     }
     BgpUpdateMessage *pp = (BgpUpdateMessage *)object; (void)pp;
     switch (field) {
+        case FIELD_AS: pp->setAS(string2ulong(value)); return true;
         case FIELD_withDrawnRoutesLength: pp->setWithDrawnRoutesLength(string2ulong(value)); return true;
         case FIELD_totalPathAttributeLength: pp->setTotalPathAttributeLength(string2ulong(value)); return true;
         default: return false;
